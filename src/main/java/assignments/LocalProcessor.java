@@ -2,8 +2,8 @@ package assignments;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.LinkedList;
-import java.util.Scanner;
+import java.util.*;
+import java.util.logging.Logger;
 
 import assignments.annotations.FullNameProcessorGeneratorAnnotation;
 import assignments.annotations.ListIteratorAnnotation;
@@ -14,48 +14,70 @@ import lombok.Setter;
 @Getter
 @Setter
 public class LocalProcessor {
-    private String processorName;
-    private Long period = 10000000000000L;
-    protected String ProcessorVersion;
-    private Integer valueofCheap;
-    Scanner informationscanner;
-    static LinkedList<String> stringArrayList = new LinkedList<>();
+    private StringBuilder processorName;
+    private Long period;
+    private StringBuilder processorVersion;
+    private Integer valueOfCheap;
+    private Scanner informationScanner;
+    private List<String> stringList;
+    private final Logger logger = Logger.getLogger(LocalProcessor.class.getName());
 
-    public LocalProcessor(String processorName, Long period, String processorVersion, Integer valueOfCheap,
-                          Scanner informationscanner, LinkedList<String> stringArrayList) {
+    public LocalProcessor(StringBuilder processorName,
+                          Long period,
+                          StringBuilder processorVersion,
+                          Integer valueOfCheap,
+                          Scanner informationScanner,
+                          List<String> stringList) {
         this.processorName = processorName;
         this.period = period;
-        ProcessorVersion = processorVersion;
-        this.valueofCheap = valueOfCheap;
-        this.informationscanner = informationscanner;
-        this.stringArrayList = stringArrayList;
+        this.processorVersion = processorVersion;
+        this.valueOfCheap = valueOfCheap;
+        this.informationScanner = informationScanner;
+        this.stringList = stringList;
     }
 
     public LocalProcessor() {
     }
-
     @ListIteratorAnnotation
-    public void listiterator(LinkedList<String> stringList) {
-        stringArrayList = new LinkedList<>(stringList);
-        for (int i = 0; i < period; i++) {
-            System.out.println(stringArrayList.get(i).hashCode());
+    public void listIterator(List<String> stringList) throws IllegalStateException{
+        try {
+            if(Objects.isNull(stringList)){throw new IllegalStateException("List is null");}
+            stringList.forEach(o->System.out.println(Objects.nonNull(o) ? o.hashCode(): ""));
+        }catch (IllegalStateException exception){
+            logger.info(exception.getMessage());
+            throw new IllegalStateException(exception);
         }
     }
 
     @FullNameProcessorGeneratorAnnotation
-    public String fullnameProcessorgenerator(LinkedList<String> stringList) {
-        for (int i = 0; i < stringArrayList.size(); i++) {
-            processorName+=stringList.get(i)+' ';
+    public String generateFullProcessorName(List<String> stringList) throws IllegalStateException{
+        try {
+            if(Objects.isNull(stringList)){throw new IllegalStateException("List is null");}
+            stringList.forEach(o->processorName.append(o).append(" "));
+            return processorName.toString();
+        }catch (IllegalStateException exception){
+            logger.info(exception.getMessage());
+            throw new IllegalStateException(exception);
         }
-        return processorName;
     }
 
     @ReadFullProcessorNameAnnotation
-    public void readfullprocessorname(File file) throws FileNotFoundException {
-            informationscanner = new Scanner(file);
-            while (informationscanner.hasNext()) {
-                ProcessorVersion+= informationscanner.nextLine();
+    public void readFullProcessorName(File file) throws IllegalStateException {
+        try {
+            informationScanner = new Scanner(file);
+            if (Objects.isNull(informationScanner)) {
+                throw new IllegalStateException("File is null");
             }
-
+            while (informationScanner.hasNext()) {
+                processorVersion.append(informationScanner.nextLine());
+            }
+        } catch (FileNotFoundException exception) {
+            logger.info(exception.getMessage());
+            throw new IllegalStateException(exception);
+        } finally {
+            if (informationScanner != null) {
+                informationScanner.close();
+            }
+        }
     }
 }
